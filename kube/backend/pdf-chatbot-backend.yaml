@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  pdf-chatbot-backend
+  labels:
+    name:  pdf-chatbot-backend
+spec:
+  selector:
+    matchLabels:
+      name: pdf-chatbot-backend
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name:  pdf-chatbot-backend
+    spec:
+      volumes:
+        - name: pdf-chatbot-storage
+          persistentVolumeClaim:
+            claimName: pdf-chatbot-pv-claim
+      restartPolicy: Always
+      containers:
+      - image:  pdf-chatbot-backend:latest
+        name:  pdf-chatbot-backend
+        resources:
+          requests:
+            cpu: "1"
+            memory: "1"
+          limits:
+            cpu: "2"
+            memory: "4G"
+        command: ["/bin/bash","-c", "ln -s  /usr/local/cuda-12.2/compat/lib.real/libcuda.so.1 /usr/local/lib/python3.10/dist-packages/torch/lib/libcuda.so.1 && python fastapi_app.py"]
+        ports:
+        - containerPort:  7860
+        envFrom:
+        - secretRef:
+            name: pdf-chatbot-secrets
+        - configMapRef:
+            name: pdf-chatbot-config
+        volumeMounts:
+          - mountPath: "/qa_bot/pdfs/"
+            name: pdf-chatbot-storage
+        imagePullPolicy: Never

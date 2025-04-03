@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  pdf-chatbot-frontend
+  labels:
+    name:  pdf-chatbot-frontend
+spec:
+  selector:
+    matchLabels:
+      name: pdf-chatbot-frontend
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name:  pdf-chatbot-frontend
+    spec:
+      volumes:
+        - name: pdf-chatbot-storage
+          persistentVolumeClaim:
+            claimName: pdf-chatbot-pv-claim
+      restartPolicy: Always
+      containers:
+      - image:  pdf-chatbot-frontend:latest
+        name:  pdf-chatbot-frontend
+        resources:
+          requests:
+            cpu: "1"
+            memory: "1"
+          limits:
+            cpu: "2"
+            memory: "4G"
+        ports:
+        - containerPort:  8000
+        envFrom:
+        - configMapRef:
+            name: pdf-chatbot-config
+        volumeMounts:
+          - mountPath: "/qa_bot/pdfs/"
+            name: pdf-chatbot-storage
+        imagePullPolicy: Never

@@ -1,0 +1,2 @@
+GRADIO_TEMP_DIR=/qa_bot/pdfs/
+BACKEND_BASE_URL=http://pdf-chatbot-backend-service.default.svc.cluster.local:8000
